@@ -12,6 +12,13 @@ const toggleCaregiverBtn = document.getElementById('toggle-caregiver-btn');
 const caregiverPanel = document.getElementById('caregiver-panel');
 const analyticsFeed = document.getElementById('analytics-feed');
 const aiText = document.getElementById('ai-text');
+const API_BASE_URL = window.location.port === '5000'
+  ? ''
+  : `${window.location.protocol}//${window.location.hostname}:5000`;
+
+function apiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
 
 function voiceNarrate(sentence) {
   if ('speechSynthesis' in window) {
@@ -28,7 +35,7 @@ voiceHelpBtn.addEventListener('click', () => {
 
 async function startup() {
   try {
-    const res = await fetch('/api/patient');
+    const res = await fetch(apiUrl('/api/patient'));
     if (res.ok) {
       patient = await res.json();
     }
@@ -105,7 +112,7 @@ async function processSessionEnd() {
   }
 
   try {
-    const res = await fetch('/api/scores', {
+    const res = await fetch(apiUrl('/api/scores'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -134,7 +141,7 @@ async function refreshCaregiverLogs() {
   
   analyticsFeed.textContent = '';
   try {
-    const res = await fetch(`/api/scores/${patient._id}`);
+    const res = await fetch(apiUrl(`/api/scores/${patient._id}`));
     const list = await res.json();
 
     if (!Array.isArray(list) || !list.length) {
