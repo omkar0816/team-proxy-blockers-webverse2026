@@ -32,16 +32,21 @@ app.get("/", (req, res) => {
 });
 
 async function startServer() {
-    const db = await connectDB();
+    const port = process.env.PORT || 5000;
+    app.locals.db = null;
 
-    app.locals.db = db;
-
-    app.listen(process.env.PORT || 5000, () => {
-        console.log(`Server running on port ${process.env.PORT || 5000}`);
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
     });
+
+    try {
+        app.locals.db = await connectDB();
+    } catch (error) {
+        console.error("MongoDB is unavailable. The local server will continue without database features.");
+    }
 }
 
-startServer().catch(() => {
-    console.error("Backend startup failed because MongoDB could not be connected.");
+startServer().catch((error) => {
+    console.error("Backend startup failed.", error);
     process.exitCode = 1;
 });
