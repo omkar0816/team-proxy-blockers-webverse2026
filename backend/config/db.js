@@ -1,41 +1,22 @@
-const { MongoClient } = require("mongodb");
+const { createClient } = require("@supabase/supabase-js");
 
 async function connectDB() {
-    try {
-        const connectionString = process.env.MONGODB_URI;
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
-        if (!connectionString) {
-            const missingUriError = new Error(
-                "MONGODB_URI is missing. Add it to the project root .env file."
-            );
-            missingUriError.code = "MISSING_MONGODB_URI";
-            throw missingUriError;
-        }
+    if (!supabaseUrl || !supabaseKey) {
+        throw new Error("SUPABASE_URL and SUPABASE_ANON_KEY are required in the project root .env file.");
+    }
 
-        const client = new MongoClient(connectionString);
-        await client.connect();
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { error } = await supabase.from("patients").select("id").limit(1);
 
-        console.log("MongoDB connected successfully");
-
-        return client.db("dementia_helper");
-    } catch (error) {
-        const networkErrors = [
-            "ENOTFOUND",
-            "ETIMEDOUT",
-            "ECONNREFUSED",
-            "EHOSTUNREACH"
-        ];
-        const cause = error.code === "MISSING_MONGODB_URI"
-            ? "missing MONGODB_URI in the project root .env file"
-            : error.code === 18 || error.codeName === "AuthenticationFailed"
-            ? "invalid MongoDB credentials"
-            : error.name === "MongoServerSelectionError" || networkErrors.includes(error.code)
-                ? "MongoDB Atlas Network Access or DNS/network settings"
-                : "MONGODB_URI or another MongoDB configuration setting";
-
-        console.error(`MongoDB connection failed: ${cause}.`);
+    if (error) {
         throw error;
     }
+
+    console.log("Supabase connected successfully");
+    return supabase;
 }
 
 module.exports = connectDB;

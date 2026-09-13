@@ -6,6 +6,8 @@ require("dotenv").config({
 
 const express = require("express");
 const connectDB = require("./config/db");
+const patientRoutes = require("./routes/patientRoutes");
+const scoreRoutes = require("./routes/scoreRoutes");
 
 const app = express();
 const frontendPath = path.resolve(__dirname, "../frontend");
@@ -30,19 +32,21 @@ app.use(express.static(frontendPath));
 app.get("/", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));
 });
+app.use("/api/patient", patientRoutes);
+app.use("/api/scores", scoreRoutes);
 
 async function startServer() {
     const port = process.env.PORT || 5000;
-    app.locals.db = null;
+    app.locals.supabase = null;
 
     app.listen(port, () => {
         console.log(`Server running on port ${port}`);
     });
 
     try {
-        app.locals.db = await connectDB();
+        app.locals.supabase = await connectDB();
     } catch (error) {
-        console.error("MongoDB is unavailable. The local server will continue without database features.");
+        console.error(`Supabase is unavailable. The local server will continue without database features: ${error.message}`);
     }
 }
 
