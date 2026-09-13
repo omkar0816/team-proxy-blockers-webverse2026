@@ -14,7 +14,7 @@ function toScoreResponse(score) {
 
 async function createScore(req, res) {
     const supabase = req.app.locals.supabase;
-    const { patientId, score, attempts, difficultyLevel = 1 } = req.body;
+    const { patientId, gameType = "Memory Recall - Cultural Pairs", score, attempts, difficultyLevel = 1 } = req.body;
 
     if (!supabase) {
         return res.status(503).json({ error: "Supabase is not connected." });
@@ -26,6 +26,7 @@ async function createScore(req, res) {
 
     const newScore = {
         patient_id: patientId,
+        game_type: gameType,
         score,
         attempts,
         difficulty_level: difficultyLevel,

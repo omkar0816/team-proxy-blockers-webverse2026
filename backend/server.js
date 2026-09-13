@@ -6,6 +6,7 @@ require("dotenv").config({
 
 const express = require("express");
 const connectDB = require("./config/db");
+const { refreshSession } = require("./utils/supabase/middleware");
 const patientRoutes = require("./routes/patientRoutes");
 const scoreRoutes = require("./routes/scoreRoutes");
 
@@ -13,6 +14,7 @@ const app = express();
 const frontendPath = path.resolve(__dirname, "../frontend");
 
 app.use(express.json());
+app.use(refreshSession);
 app.use((req, res, next) => {
     const origin = req.headers.origin;
 
