@@ -796,19 +796,40 @@ document.querySelectorAll('.activity-row').forEach(row=>{
   row.addEventListener('click', ()=> launchGame(row.dataset.game));
 });
 /* =========================================================
-   CAREGIVER ALERTS INTERACTION (Demo)
+   CAREGIVER ALERTS INTERACTION (With Database Logging)
 ========================================================= */
 document.querySelectorAll('.alert-row').forEach(alert => {
   // Make the mouse a pointer so it looks clickable
   alert.style.cursor = 'pointer'; 
   
-  alert.addEventListener('click', function() {
-    // Optional: Have the app speak when an alert is clicked
+  alert.addEventListener('click', async function() {
+    // 1. Grab the specific text from the alert you clicked
+    const title = this.querySelector('.alert-title').textContent;
+    const patientName = document.getElementById('patientName').textContent;
+    
+    // Optional: Have the app speak
     if(typeof speak === 'function') {
-      speak('Alert acknowledged.');
+      speak(`${title} acknowledged. Logging to database.`);
+    }
+
+    // 2. SEND TO BACKEND (This is the crucial part that was missing!)
+    try {
+      console.log("Sending alert to backend:", title);
+      
+      // Using localhost:5000 directly to fix the port mismatch
+      fetch('http://localhost:5000/api/notify-caregiver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alertTitle: title, patientName: patientName })
+      })
+      .then(res => res.json())
+      .then(data => console.log("Backend response:", data));
+      
+    } catch(err) {
+      console.error('Failed to log alert', err);
     }
     
-    // Visually fade out and remove the alert to simulate completing it
+    // 3. Visually fade out and remove the alert
     this.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
     this.style.opacity = '0';
     this.style.transform = 'translateX(20px)';
