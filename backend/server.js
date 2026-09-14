@@ -31,18 +31,12 @@ app.use((req, res, next) => {
 
     next();
 });
-app.get("/auth-login.html", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../index.html"));
-});
-app.get("/index.html", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../index.html"));
-});
 app.use(express.static(frontendPath, { index: false }));
 app.get("/", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../index.html"));
+    res.sendFile(path.resolve(__dirname, "../auth-login.html"));
 });
-app.get("/dashboard", (req, res) => {
-    res.sendFile(path.join(frontendPath, "dashboard.html"));
+app.get("/auth-login.html", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../auth-login.html"));
 });
 app.get("/patient", (req, res) => {
     res.sendFile(path.join(frontendPath, "index.html"));

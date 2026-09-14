@@ -242,7 +242,7 @@ class AuthManager {
     if (!response.ok) {
       if (response.status === 401) {
         await this.logout();
-        window.location.href = '/';
+        window.location.href = '/auth-login.html';
         return;
       }
       throw new Error(`API call failed: ${response.statusText}`);
@@ -307,7 +307,7 @@ class AuthMiddleware {
   static requireAuth() {
     const currentUser = sessionStorage.getItem('currentUser');
     if (!currentUser) {
-      window.location.href = '/';
+      window.location.href = '/auth-login.html';
       return false;
     }
     return true;
@@ -359,7 +359,7 @@ class SessionManager {
 
   static async endSession() {
     await window.authManager.logout();
-    window.location.href = '/';
+    window.location.href = '/auth-login.html';
   }
 }
 
