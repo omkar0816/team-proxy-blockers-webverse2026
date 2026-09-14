@@ -1,8 +1,6 @@
 /**
  * Authentication Utility Module
  * Handles user authentication, session management, and API calls
- * 
- * This integrates with your Supabase backend for production use
  */
 
 class AuthManager {
@@ -60,17 +58,39 @@ class AuthManager {
           caretaker_name: userData.caretaker_name,
           caretaker_mobile: userData.caretaker_mobile,
           password: userData.password,
-          language: userData.language,
-          voice_helper: userData.voice_helper
+          language: userData.language || 'English',
+          voice_helper: userData.voice_helper || 'English'
         })
       });
 
+      let errorData = null;
+      const contentType = response.headers.get('content-type');
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Registration failed');
+        try {
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          } else {
+            const text = await response.text();
+            errorData = { message: text || `HTTP ${response.status}` };
+          }
+        } catch (e) {
+          errorData = { message: `Registration failed with status ${response.status}` };
+        }
+        throw new Error(errorData?.message || 'Registration failed');
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          throw new Error('Invalid response format: expected JSON');
+        }
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        throw new Error('Server returned invalid response');
+      }
       
       // Store user data and token
       this.currentUser = data.user;
@@ -150,12 +170,12 @@ class AuthManager {
       throw error;
     }
   }
+
   /**
    * Logout user
    */
   async logout() {
     try {
-      // Optional: Notify backend of logout
       if (this.token) {
         await fetch(`${this.apiBaseUrl}/patient/logout`, {
           method: 'POST',
@@ -166,7 +186,6 @@ class AuthManager {
         });
       }
 
-      // Clear local storage
       this.currentUser = null;
       this.token = null;
       sessionStorage.removeItem('currentUser');
@@ -176,7 +195,6 @@ class AuthManager {
       return { success: true };
     } catch (error) {
       console.error('Logout error:', error);
-      // Clear anyway
       this.currentUser = null;
       this.token = null;
       sessionStorage.removeItem('currentUser');
@@ -223,15 +241,27 @@ class AuthManager {
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Token expired or invalid
         await this.logout();
-        window.location.href = '/index.html';
+        window.location.href = '/';
         return;
       }
       throw new Error(`API call failed: ${response.statusText}`);
     }
 
     return response.json();
+  }
+
+  /**
+   * Get game history
+   */
+  async getGameHistory() {
+    try {
+      const data = await this.apiCall('/scores/history', 'GET');
+      return data;
+    } catch (error) {
+      console.error('Failed to fetch game history:', error);
+      throw error;
+    }
   }
 
   /**
@@ -249,19 +279,6 @@ class AuthManager {
       return data;
     } catch (error) {
       console.error('Failed to save score:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * Get game history
-   */
-  async getGameHistory() {
-    try {
-      const data = await this.apiCall('/scores/history', 'GET');
-      return data;
-    } catch (error) {
-      console.error('Failed to fetch game history:', error);
       throw error;
     }
   }
@@ -285,13 +302,12 @@ window.authManager = new AuthManager();
 
 /**
  * Middleware - Protect routes
- * Use in pages that require authentication
  */
 class AuthMiddleware {
   static requireAuth() {
     const currentUser = sessionStorage.getItem('currentUser');
     if (!currentUser) {
-      window.location.href = '/index.html';
+      window.location.href = '/';
       return false;
     }
     return true;
@@ -304,7 +320,6 @@ class AuthMiddleware {
     }
 
     try {
-      // Make a simple API call to verify token
       const response = await fetch(`${window.authManager.apiBaseUrl}/patient/verify`, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -313,28 +328,6 @@ class AuthMiddleware {
 
       return response.ok;
     } catch (error) {
-      return false;
-    }
-  }
-
-  static async refreshToken() {
-    try {
-      const response = await fetch(`${window.authManager.apiBaseUrl}/patient/refresh-token`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('authToken')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        sessionStorage.setItem('authToken', data.token);
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error('Token refresh failed:', error);
       return false;
     }
   }
@@ -347,12 +340,10 @@ class SessionManager {
   static startSession() {
     const user = sessionStorage.getItem('currentUser');
     if (user) {
-      // Set session timeout (30 minutes)
       this.sessionTimeout = setTimeout(() => {
         this.endSession();
       }, 30 * 60 * 1000);
 
-      // Reset timeout on user activity
       document.addEventListener('mousemove', () => this.resetTimeout());
       document.addEventListener('keypress', () => this.resetTimeout());
       document.addEventListener('click', () => this.resetTimeout());
@@ -368,7 +359,7 @@ class SessionManager {
 
   static async endSession() {
     await window.authManager.logout();
-    window.location.href = '/index.html';
+    window.location.href = '/';
   }
 }
 
@@ -377,7 +368,6 @@ class SessionManager {
  */
 class PasswordUtils {
   static isStrong(password) {
-    // At least 8 characters, contains uppercase, lowercase, number, special char
     const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return strongRegex.test(password);
   }
@@ -406,7 +396,6 @@ class FormValidator {
   }
 
   static validatePhone(phone) {
-    // 10-digit phone number for India
     const phoneRegex = /^[0-9]{10}$/;
     return phoneRegex.test(phone.replace(/\D/g, ''));
   }

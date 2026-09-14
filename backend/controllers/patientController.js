@@ -4,7 +4,7 @@ const { hashPassword, verifyPassword } = require("../utils/passwordHash");
 const defaultPatient = {
     name: "Elderly Resident",
     age: 74,
-    region: "Assam / North East India",
+    region: "India",
     caregiver_name: "Family Caregiver",
     caregiver_phone: "+91 9876543210",
     preferred_language: "English"
@@ -65,7 +65,7 @@ function createToken(caregiver, patient) {
             patient_id: patient.id,
             caretaker_name: caregiver.caretaker_name
         },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET || 'your-secret-key',
         { expiresIn: "24h" }
     );
 }
@@ -96,12 +96,11 @@ function authUnavailable(res) {
 async function register(req, res) {
     const supabase = req.app.locals.supabase;
 
-    if (!supabase) {
-        return res.status(503).json({ message: "Database unavailable" });
-    }
     if (authUnavailable(res)) {
         return;
     }
+    
+    console.log("Register request received:", req.body);
 
     const {
         patient_name: patientName,
@@ -112,6 +111,7 @@ async function register(req, res) {
         voice_helper: voiceHelper
     } = req.body;
 
+    // Validation
     if (!patientName || !caretakerName || !caretakerMobile || !password || !language) {
         return res.status(400).json({ message: "Missing required fields" });
     }
@@ -122,47 +122,88 @@ async function register(req, res) {
         return res.status(400).json({ message: "Mobile number must contain 10 digits" });
     }
 
-    const { data: patient, error: patientError } = await supabase
-        .from("patients")
-        .insert({
-            name: patientName,
-            age: 0,
-            caregiver_name: caretakerName,
-            caregiver_phone: caretakerMobile,
-            preferred_language: language
-        })
-        .select()
-        .single();
+    // If no database, use mock mode
+    if (!supabase) {
+        try {
+            console.log("Using mock registration mode");
+            const mockPatient = {
+                id: Date.now(),
+                name: patientName,
+                age: 0,
+                caregiver_name: caretakerName,
+                caregiver_phone: caretakerMobile,
+                preferred_language: language
+            };
+            
+            const mockCaregiver = {
+                id: Date.now() + 1,
+                patient_id: mockPatient.id,
+                caretaker_name: caretakerName,
+                language: language,
+                voice_helper: voiceHelper || language
+            };
 
-    if (patientError) {
-        return res.status(500).json({ message: "Registration failed", error: patientError.message });
+            const token = createToken(mockCaregiver, mockPatient);
+            return res.status(201).json({
+                success: true,
+                user: {
+                    id: mockCaregiver.id,
+                    patient_id: mockPatient.id,
+                    patient_name: mockPatient.name,
+                    caretaker_name: mockCaregiver.caretaker_name,
+                    language: mockCaregiver.language,
+                    voice_helper: mockCaregiver.voice_helper
+                },
+                token
+            });
+        } catch (error) {
+            return res.status(500).json({ message: "Registration failed", error: error.message });
+        }
     }
 
-    const { data: caregiver, error: caregiverError } = await supabase
-        .from("caregivers")
-        .insert({
-            patient_id: patient.id,
-            caretaker_name: caretakerName,
-            mobile_number: caretakerMobile,
-            password_hash: hashPassword(password),
-            language,
-            voice_helper: voiceHelper || language
-        })
-        .select()
-        .single();
-
-    if (caregiverError) {
-        await supabase.from("patients").delete().eq("id", patient.id);
-        const duplicate = caregiverError.code === "23505";
-        return res.status(duplicate ? 409 : 500).json({
-            message: duplicate ? "A caregiver with that mobile number already exists" : "Registration failed",
-            error: caregiverError.message
-        });
-    }
-
+    // Database registration
     try {
+        const { data: patient, error: patientError } = await supabase
+            .from("patients")
+            .insert({
+                name: patientName,
+                age: 0,
+                caregiver_name: caretakerName,
+                caregiver_phone: caretakerMobile,
+                preferred_language: language
+            })
+            .select()
+            .single();
+
+        if (patientError) {
+            return res.status(500).json({ message: "Registration failed", error: patientError.message });
+        }
+
+        const { data: caregiver, error: caregiverError } = await supabase
+            .from("caregivers")
+            .insert({
+                patient_id: patient.id,
+                caretaker_name: caretakerName,
+                mobile_number: caretakerMobile,
+                password_hash: hashPassword(password),
+                language,
+                voice_helper: voiceHelper || language
+            })
+            .select()
+            .single();
+
+        if (caregiverError) {
+            await supabase.from("patients").delete().eq("id", patient.id);
+            const duplicate = caregiverError.code === "23505";
+            return res.status(duplicate ? 409 : 500).json({
+                message: duplicate ? "A caregiver with that mobile number already exists" : "Registration failed",
+                error: caregiverError.message
+            });
+        }
+
         const token = createToken(caregiver, patient);
         await createSession(supabase, caregiver.id, token, req);
+        
         return res.status(201).json({
             success: true,
             user: {
@@ -188,6 +229,9 @@ async function login(req, res) {
     }
 
     const { caretaker_name: caretakerName, password } = req.body;
+    
+    console.log("Login attempt for:", caretakerName);
+
     if (!caretakerName || !password) {
         return res.status(400).json({ message: "Caretaker name and password are required" });
     }
@@ -201,6 +245,7 @@ async function login(req, res) {
                 { id: 1, caretaker_name: caretakerName },
                 { id: 1, name: "Demo Patient" }
             );
+            console.log("Mock login successful");
             return res.json({
                 success: true,
                 user: {
@@ -214,33 +259,48 @@ async function login(req, res) {
                 token: mockToken
             });
         } else {
+            console.log("Invalid credentials for mock auth");
             return res.status(401).json({ message: "Invalid credentials" });
         }
     }
 
-    const { data: caregiver, error: caregiverError } = await supabase
-        .from("caregivers")
-        .select("*")
-        .eq("caretaker_name", caretakerName)
-        .maybeSingle();
-
-    if (caregiverError || !caregiver || !verifyPassword(password, caregiver.password_hash)) {
-        return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const { data: patient, error: patientError } = await supabase
-        .from("patients")
-        .select("*")
-        .eq("id", caregiver.patient_id)
-        .single();
-
-    if (patientError) {
-        return res.status(500).json({ message: "Unable to load patient", error: patientError.message });
-    }
-
+    // Database login
     try {
+        const { data: caregiver, error: caregiverError } = await supabase
+            .from("caregivers")
+            .select("*")
+            .eq("caretaker_name", caretakerName)
+            .maybeSingle();
+
+        if (caregiverError) {
+            console.error("Database error:", caregiverError);
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        if (!caregiver) {
+            console.log("Caregiver not found");
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        if (!verifyPassword(password, caregiver.password_hash)) {
+            console.log("Password verification failed");
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
+
+        const { data: patient, error: patientError } = await supabase
+            .from("patients")
+            .select("*")
+            .eq("id", caregiver.patient_id)
+            .single();
+
+        if (patientError) {
+            return res.status(500).json({ message: "Unable to load patient", error: patientError.message });
+        }
+
         const token = createToken(caregiver, patient);
         await createSession(supabase, caregiver.id, token, req);
+        
+        console.log("Login successful for:", caretakerName);
         return res.json({
             success: true,
             user: {
@@ -254,6 +314,7 @@ async function login(req, res) {
             token
         });
     } catch (error) {
+        console.error("Login error:", error);
         return res.status(500).json({ message: "Login failed", error: error.message });
     }
 }

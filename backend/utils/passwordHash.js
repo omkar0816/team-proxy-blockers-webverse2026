@@ -1,22 +1,27 @@
 const crypto = require("crypto");
 
-function hashPassword(password, salt = crypto.randomBytes(16).toString("hex")) {
-    const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, "sha512").toString("hex");
-    return `${salt}:${hash}`;
+function hashPassword(password) {
+    // Simple hashing with salt
+    const salt = crypto.randomBytes(16).toString('hex');
+    const hash = crypto
+        .pbkdf2Sync(password, salt, 1000, 64, 'sha512')
+        .toString('hex');
+    return salt + ':' + hash;
 }
 
-function verifyPassword(password, storedPassword) {
-    const [salt, expectedHash] = String(storedPassword).split(":");
-
-    if (!salt || !expectedHash) {
-        return false;
-    }
-
-    const actualHash = crypto.pbkdf2Sync(password, salt, 100000, 64, "sha512").toString("hex");
-    const expected = Buffer.from(expectedHash, "hex");
-    const actual = Buffer.from(actualHash, "hex");
-
-    return expected.length === actual.length && crypto.timingSafeEqual(expected, actual);
+function verifyPassword(password, hashedPassword) {
+    const parts = hashedPassword.split(':');
+    const salt = parts[0];
+    const hash = parts[1];
+    
+    const newHash = crypto
+        .pbkdf2Sync(password, salt, 1000, 64, 'sha512')
+        .toString('hex');
+    
+    return newHash === hash;
 }
 
-module.exports = { hashPassword, verifyPassword };
+module.exports = {
+    hashPassword,
+    verifyPassword
+};

@@ -31,27 +31,27 @@ app.use((req, res, next) => {
 
     next();
 });
-app.use(express.static(frontendPath, { index: false }));
-app.get("/", (req, res) => {
+app.get("/auth-login.html", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../index.html"));
 });
 app.get("/index.html", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../index.html"));
 });
-app.get("/auth-login.html", (req, res) => {
+app.use(express.static(frontendPath, { index: false }));
+app.get("/", (req, res) => {
     res.sendFile(path.resolve(__dirname, "../index.html"));
 });
 app.get("/dashboard", (req, res) => {
     res.sendFile(path.join(frontendPath, "dashboard.html"));
 });
 app.get("/patient", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../patient.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
 });
 app.get("/patient.html", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../patient.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
 });
 app.get("/game", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "../patient.html"));
+    res.sendFile(path.join(frontendPath, "index.html"));
 });
 app.use("/api/patient", patientRoutes);
 app.use("/api/scores", scoreRoutes);

@@ -1,651 +1,577 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cognitive Care Companion - Login</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Care Companion - Login & Signup</title>
+    <script>
+        window.location.replace('/index.html');
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #020307 0%, #09020f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
-    .auth-container {
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      max-width: 900px;
-      width: 100%;
-      display: flex;
-      min-height: 600px;
-    }
+        .container {
+            background: rgb(15, 3, 3);
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+        }
 
-    /* Left side - Brand/Info */
-    .auth-brand {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 50px 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      flex: 1;
-    }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #3d2c2c;
+        }
 
-    .brand-logo {
-      font-size: 48px;
-      margin-bottom: 20px;
-    }
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: 500;
+            color: #999;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
 
-    .brand-title {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 15px;
-    }
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            margin-bottom: -2px;
+        }
 
-    .brand-subtitle {
-      font-size: 14px;
-      opacity: 0.9;
-      line-height: 1.6;
-      margin-bottom: 30px;
-    }
+        .form-content {
+            padding: 40px;
+        }
 
-    .brand-features {
-      font-size: 12px;
-      text-align: left;
-      opacity: 0.85;
-    }
+        .tab-content {
+            display: none;
+        }
 
-    .brand-features li {
-      margin: 8px 0;
-      list-style: none;
-      padding-left: 20px;
-      position: relative;
-    }
+        .tab-content.active {
+            display: block;
+        }
 
-    .brand-features li:before {
-      content: "✓";
-      position: absolute;
-      left: 0;
-      font-weight: bold;
-    }
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-    /* Right side - Form */
-    .auth-form-container {
-      flex: 1;
-      padding: 50px 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
 
-    .auth-tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 30px;
-      border-bottom: 2px solid #f0f0f0;
-    }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
 
-    .auth-tab {
-      flex: 1;
-      padding: 12px 0;
-      text-align: center;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 500;
-      color: #999;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s ease;
-      background: none;
-      border: none;
-    }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.1);
+        }
 
-    .auth-tab.active {
-      color: #667eea;
-      border-bottom-color: #667eea;
-    }
+        .error {
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
 
-    .auth-tab:hover {
-      color: #667eea;
-    }
+        .error.show {
+            display: block;
+        }
 
-    .form-section {
-      display: none;
-    }
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
 
-    .form-section.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+        .submit-btn:active {
+            transform: translateY(0);
+        }
 
-    .form-group {
-      margin-bottom: 20px;
-    }
+        .submit-btn.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
 
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      color: #333;
-    }
+        .success-msg {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
 
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 12px 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      font-family: inherit;
-    }
+        .success-msg.show {
+            display: block;
+        }
 
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
+        .error-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+        .error-msg.show {
+            display: block;
+        }
 
-    .form-row-full {
-      grid-column: 1 / -1;
-    }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
 
-    .checkbox-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
 
-    .checkbox-group input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
+        .checkbox-group label {
+            margin: 0;
+            font-weight: 400;
+        }
 
-    .checkbox-group label {
-      margin: 0;
-      cursor: pointer;
-      font-size: 13px;
-      color: #666;
-    }
+        .brand-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
 
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 10px;
-    }
+        .brand-header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
 
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-    }
+        .brand-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
 
-    .btn-submit:active {
-      transform: translateY(0);
-    }
+        .password-strength {
+            display: none;
+            margin-top: 8px;
+            font-size: 12px;
+            padding: 5px;
+            border-radius: 4px;
+        }
 
-    .error-message {
-      background-color: #fee;
-      border: 1px solid #fcc;
-      border-radius: 8px;
-      color: #c33;
-      padding: 12px 15px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      display: none;
-    }
+        .password-strength.weak {
+            display: block;
+            background-color: #fee;
+            color: #c33;
+        }
 
-    .error-message.show {
-      display: block;
-    }
+        .password-strength.medium {
+            display: block;
+            background-color: #fef3cd;
+            color: #856404;
+        }
 
-    .success-message {
-      background-color: #efe;
-      border: 1px solid #cfc;
-      border-radius: 8px;
-      color: #3c3;
-      padding: 12px 15px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      display: none;
-    }
+        .password-strength.strong {
+            display: block;
+            background-color: #d4edda;
+            color: #155724;
+        }
 
-    .success-message.show {
-      display: block;
-    }
+        @media (max-width: 600px) {
+            .form-content {
+                padding: 25px;
+            }
 
-    .info-text {
-      font-size: 13px;
-      color: #999;
-      margin-top: 15px;
-      text-align: center;
-    }
+            .brand-header h1 {
+                font-size: 24px;
+            }
 
-    .loading {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #667eea;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 8px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .btn-submit:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    @media (max-width: 768px) {
-      .auth-container {
-        flex-direction: column;
-        min-height: auto;
-      }
-
-      .auth-brand {
-        padding: 30px 20px;
-        min-height: 200px;
-      }
-
-      .auth-form-container {
-        padding: 30px 20px;
-      }
-
-      .brand-title {
-        font-size: 24px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+            input, select {
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="auth-container">
-    <!-- Left side - Brand -->
-    <div class="auth-brand">
-      <div class="brand-logo">🧠</div>
-      <div class="brand-title">Care Companion</div>
-      <div class="brand-subtitle">
-        AI-powered cognitive care for elderly in rural communities
-      </div>
-      <ul class="brand-features">
-        <li>Adaptive brain games</li>
-        <li>AI-generated content</li>
-        <li>Multi-language support</li>
-        <li>Caregiver dashboard</li>
-      </ul>
+    <div class="container">
+        <div class="brand-header">
+            <h1>🧠 Care Companion</h1>
+            <p>Cognitive Care for Elderly</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" onclick="switchTab('signup')">Sign Up</button>
+        </div>
+
+        <div class="form-content">
+            <!-- Login Form -->
+            <div id="login" class="tab-content active">
+                <div class="error-msg" id="loginErrorMsg"></div>
+                <div class="success-msg" id="loginSuccessMsg"></div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginUsername">Caretaker Name</label>
+                        <input 
+                            type="text" 
+                            id="loginUsername" 
+                            name="caretaker_name"
+                            placeholder="Enter caretaker name"
+                            required
+                        >
+                        <div class="error" id="loginUsernameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input 
+                            type="password" 
+                            id="loginPassword" 
+                            name="password"
+                            placeholder="Enter password"
+                            required
+                        >
+                        <div class="error" id="loginPasswordError"></div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe" name="remember_me">
+                        <label for="rememberMe">Remember me</label>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="loginBtn">Login</button>
+                </form>
+
+                <p style="margin-top: 20px; text-align: center; color: #666; font-size: 14px;">
+                    Demo Credentials:<br>
+                    <strong>Username:</strong> F25211020<br>
+                    <strong>Password:</strong> demo123
+                </p>
+            </div>
+
+            <!-- Signup Form -->
+            <div id="signup" class="tab-content">
+                <div class="error-msg" id="signupErrorMsg"></div>
+                <div class="success-msg" id="signupSuccessMsg"></div>
+
+                <form id="signupForm" onsubmit="handleSignup(event)">
+                    <div class="form-group">
+                        <label for="patientName">Patient Name</label>
+                        <input 
+                            type="text" 
+                            id="patientName" 
+                            name="patient_name"
+                            placeholder="Enter patient name"
+                            required
+                        >
+                        <div class="error" id="patientNameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="caretakerName">Caretaker Name</label>
+                        <input 
+                            type="text" 
+                            id="caretakerName" 
+                            name="caretaker_name"
+                            placeholder="Enter caretaker name"
+                            required
+                        >
+                        <div class="error" id="caretakerNameError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="caretakerMobile">Mobile Number (10 digits)</label>
+                        <input 
+                            type="tel" 
+                            id="caretakerMobile" 
+                            name="caretaker_mobile"
+                            placeholder="10-digit mobile number"
+                            maxlength="10"
+                            required
+                        >
+                        <div class="error" id="caretakerMobileError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="signupPassword">Password</label>
+                        <input 
+                            type="password" 
+                            id="signupPassword" 
+                            name="password"
+                            placeholder="Min 6 characters"
+                            onchange="checkPasswordStrength()"
+                            required
+                        >
+                        <div class="password-strength" id="passwordStrength"></div>
+                        <div class="error" id="signupPasswordError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirm_password"
+                            placeholder="Confirm password"
+                            required
+                        >
+                        <div class="error" id="confirmPasswordError"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">Preferred Language</label>
+                        <select id="language" name="language" required>
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Marathi">Marathi</option>
+                            <option value="Tamil">Tamil</option>
+                            <option value="Telugu">Telugu</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="voiceHelper">Voice Helper Language</label>
+                        <select id="voiceHelper" name="voice_helper" required>
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Marathi">Marathi</option>
+                            <option value="Tamil">Tamil</option>
+                            <option value="Telugu">Telugu</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="signupBtn">Sign Up</button>
+                </form>
+            </div>
+        </div>
     </div>
 
-    <!-- Right side - Form -->
-    <div class="auth-form-container">
-      <div class="auth-tabs">
-        <button class="auth-tab active" data-tab="login">Login</button>
-        <button class="auth-tab" data-tab="signup">Sign Up</button>
-      </div>
+    <script src="/auth-utils.js"></script>
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active');
+            });
 
-      <!-- Login Form -->
-      <form id="loginForm" class="form-section active">
-        <div class="error-message" id="loginError"></div>
-        
-        <div class="form-group">
-          <label for="loginName">Caretaker Name</label>
-          <input 
-            type="text" 
-            id="loginName" 
-            placeholder="Enter your name" 
-            required
-          />
-        </div>
+            // Show selected tab
+            document.getElementById(tab).classList.add('active');
+            event.target.classList.add('active');
+        }
 
-        <div class="form-group">
-          <label for="loginPassword">Password</label>
-          <input 
-            type="password" 
-            id="loginPassword" 
-            placeholder="Enter your password" 
-            required
-          />
-        </div>
+        // Password strength checker
+        function checkPasswordStrength() {
+            const password = document.getElementById('signupPassword').value;
+            const strength = PasswordUtils.getStrength(password);
+            const strengthEl = document.getElementById('passwordStrength');
+            const label = PasswordUtils.getStrengthLabel(strength);
 
-        <div class="checkbox-group">
-          <input 
-            type="checkbox" 
-            id="rememberMe" 
-            name="rememberMe"
-          />
-          <label for="rememberMe">Remember me</label>
-        </div>
+            strengthEl.classList.remove('weak', 'medium', 'strong');
+            
+            if (strength <= 1) {
+                strengthEl.textContent = 'Password is too weak';
+                strengthEl.classList.add('weak');
+            } else if (strength === 2) {
+                strengthEl.textContent = 'Password is weak';
+                strengthEl.classList.add('weak');
+            } else if (strength === 3) {
+                strengthEl.textContent = 'Password strength: Medium';
+                strengthEl.classList.add('medium');
+            } else {
+                strengthEl.textContent = 'Password strength: Strong';
+                strengthEl.classList.add('strong');
+            }
+        }
 
-        <button type="submit" class="btn-submit">Login</button>
-        <div class="info-text">Don't have an account? Switch to Sign Up tab</div>
-      </form>
+        // Login handler
+        async function handleLogin(event) {
+            event.preventDefault();
 
-      <!-- Signup Form -->
-      <form id="signupForm" class="form-section">
-        <div class="error-message" id="signupError"></div>
-        <div class="success-message" id="signupSuccess"></div>
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const rememberMe = document.getElementById('rememberMe').checked;
 
-        <div class="form-row">
-          <div class="form-group form-row-full">
-            <label for="signupPatientName">Patient Name *</label>
-            <input 
-              type="text" 
-              id="signupPatientName" 
-              placeholder="Enter patient's name" 
-              required
-            />
-          </div>
-        </div>
+            // Clear previous messages
+            document.getElementById('loginErrorMsg').classList.remove('show');
+            document.getElementById('loginSuccessMsg').classList.remove('show');
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="signupCaretakerName">Caretaker Name *</label>
-            <input 
-              type="text" 
-              id="signupCaretakerName" 
-              placeholder="Your name" 
-              required
-            />
-          </div>
+            // Validate
+            if (!username || !password) {
+                showLoginError('Please fill in all fields');
+                return;
+            }
 
-          <div class="form-group">
-            <label for="signupCaretakerMobile">Mobile Number *</label>
-            <input 
-              type="tel" 
-              id="signupCaretakerMobile" 
-              placeholder="10-digit mobile" 
-              pattern="[0-9]{10}"
-              required
-            />
-          </div>
-        </div>
+            // Set loading state
+            const btn = document.getElementById('loginBtn');
+            btn.classList.add('loading');
+            btn.textContent = 'Logging in...';
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="signupPassword">Password *</label>
-            <input 
-              type="password" 
-              id="signupPassword" 
-              placeholder="Min 6 characters" 
-              minlength="6"
-              required
-            />
-          </div>
+            try {
+                const result = await window.authManager.login(username, password);
 
-          <div class="form-group">
-            <label for="signupConfirmPassword">Confirm Password *</label>
-            <input 
-              type="password" 
-              id="signupConfirmPassword" 
-              placeholder="Re-enter password" 
-              minlength="6"
-              required
-            />
-          </div>
-        </div>
+                if (result.success) {
+                    if (rememberMe) {
+                        localStorage.setItem('rememberedUser', JSON.stringify(result.user));
+                    }
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="signupLanguage">Language Preference *</label>
-            <select id="signupLanguage" required>
-              <option value="">Select language</option>
-              <option value="hindi">Hindi</option>
-              <option value="english">English</option>
-              <option value="marathi">Marathi</option>
-              <option value="bengali">Bengali</option>
-            </select>
-          </div>
+                    showLoginSuccess('Login successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                }
+            } catch (error) {
+                showLoginError(error.message || 'Login failed');
+                btn.classList.remove('loading');
+                btn.textContent = 'Login';
+            }
+        }
 
-          <div class="form-group">
-            <label for="signupVoiceHelper">Voice Helper</label>
-            <select id="signupVoiceHelper">
-              <option value="hindi">Hindi</option>
-              <option value="english">English</option>
-            </select>
-          </div>
-        </div>
+        // Signup handler
+        async function handleSignup(event) {
+            event.preventDefault();
 
-        <button type="submit" class="btn-submit">Create Account</button>
-        <div class="info-text">Already have an account? Switch to Login tab</div>
-      </form>
-    </div>
-  </div>
+            const formData = {
+                patient_name: document.getElementById('patientName').value.trim(),
+                caretaker_name: document.getElementById('caretakerName').value.trim(),
+                caretaker_mobile: document.getElementById('caretakerMobile').value.trim(),
+                password: document.getElementById('signupPassword').value,
+                confirm_password: document.getElementById('confirmPassword').value,
+                language: document.getElementById('language').value,
+                voice_helper: document.getElementById('voiceHelper').value
+            };
 
-  <script>
-    // Tab switching
-    document.querySelectorAll('.auth-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const tabName = tab.dataset.tab;
-        
-        // Update active tab
-        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        // Update active form
-        document.querySelectorAll('.form-section').forEach(form => form.classList.remove('active'));
-        document.getElementById(tabName + 'Form').classList.add('active');
-        
-        // Clear messages
-        document.querySelectorAll('.error-message, .success-message').forEach(msg => {
-          msg.classList.remove('show');
-          msg.textContent = '';
+            // Clear previous messages
+            document.getElementById('signupErrorMsg').classList.remove('show');
+            document.getElementById('signupSuccessMsg').classList.remove('show');
+
+            // Validate
+            const validation = FormValidator.validateForm(formData);
+            if (!validation.isValid) {
+                displaySignupErrors(validation.errors);
+                return;
+            }
+
+            // Check password match
+            if (formData.password !== formData.confirm_password) {
+                showSignupError('Passwords do not match');
+                return;
+            }
+
+            // Set loading state
+            const btn = document.getElementById('signupBtn');
+            btn.classList.add('loading');
+            btn.textContent = 'Creating account...';
+
+            try {
+                const result = await window.authManager.register(formData);
+
+                if (result.success) {
+                    showSignupSuccess('Account created successfully! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                }
+            } catch (error) {
+                showSignupError(error.message || 'Signup failed');
+                btn.classList.remove('loading');
+                btn.textContent = 'Sign Up';
+            }
+        }
+
+        // Helper functions
+        function showLoginError(message) {
+            const el = document.getElementById('loginErrorMsg');
+            el.textContent = message;
+            el.classList.add('show');
+        }
+
+        function showLoginSuccess(message) {
+            const el = document.getElementById('loginSuccessMsg');
+            el.textContent = message;
+            el.classList.add('show');
+        }
+
+        function showSignupError(message) {
+            const el = document.getElementById('signupErrorMsg');
+            el.textContent = message;
+            el.classList.add('show');
+        }
+
+        function showSignupSuccess(message) {
+            const el = document.getElementById('signupSuccessMsg');
+            el.textContent = message;
+            el.classList.add('show');
+        }
+
+        function displaySignupErrors(errors) {
+            Object.keys(errors).forEach(field => {
+                const errorEl = document.getElementById(`${field}Error`);
+                if (errorEl) {
+                    errorEl.textContent = errors[field];
+                    errorEl.classList.add('show');
+                }
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', async () => {
+            await window.authManager.initialize();
+            
+            // If already logged in, redirect to dashboard
+            if (window.authManager.isAuthenticated()) {
+                window.location.href = '/dashboard';
+            }
         });
-      });
-    });
-
-    // Login form
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const name = document.getElementById('loginName').value;
-      const password = document.getElementById('loginPassword').value;
-      const rememberMe = document.getElementById('rememberMe').checked;
-      const errorDiv = document.getElementById('loginError');
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-
-      try {
-        // Validate
-        if (!name || !password) {
-          throw new Error('Please fill all fields');
-        }
-
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading"></span>Logging in...';
-
-        // Simulate API call (replace with actual backend call)
-        const userData = await authenticateUser(name, password);
-
-        if (userData) {
-          // Store session
-          sessionStorage.setItem('currentUser', JSON.stringify(userData));
-          if (rememberMe) {
-            localStorage.setItem('rememberedUser', JSON.stringify({
-              name: userData.caretaker_name,
-              patientName: userData.patient_name
-            }));
-          }
-
-          // Redirect to dashboard
-          window.location.href = '/patient.html';
-        } else {
-          throw new Error('Invalid credentials');
-        }
-      } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.add('show');
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    });
-
-    // Signup form
-    document.getElementById('signupForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const formData = {
-        patient_name: document.getElementById('signupPatientName').value,
-        caretaker_name: document.getElementById('signupCaretakerName').value,
-        caretaker_mobile: document.getElementById('signupCaretakerMobile').value,
-        password: document.getElementById('signupPassword').value,
-        confirm_password: document.getElementById('signupConfirmPassword').value,
-        language: document.getElementById('signupLanguage').value,
-        voice_helper: document.getElementById('signupVoiceHelper').value
-      };
-
-      const errorDiv = document.getElementById('signupError');
-      const successDiv = document.getElementById('signupSuccess');
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-
-      try {
-        // Clear messages
-        errorDiv.classList.remove('show');
-        successDiv.classList.remove('show');
-
-        // Validation
-        if (!formData.patient_name) throw new Error('Patient name is required');
-        if (!formData.caretaker_name) throw new Error('Caretaker name is required');
-        if (!formData.caretaker_mobile || formData.caretaker_mobile.length !== 10) {
-          throw new Error('Valid 10-digit mobile number required');
-        }
-        if (formData.password.length < 6) throw new Error('Password must be at least 6 characters');
-        if (formData.password !== formData.confirm_password) {
-          throw new Error('Passwords do not match');
-        }
-        if (!formData.language) throw new Error('Please select a language');
-
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading"></span>Creating account...';
-
-        // Simulate API call (replace with actual backend call)
-        const result = await registerUser(formData);
-
-        if (result.success) {
-          successDiv.textContent = 'Account created successfully! Logging you in...';
-          successDiv.classList.add('show');
-
-          // Auto login and redirect
-          setTimeout(() => {
-            window.location.href = '/patient.html';
-          }, 800);
-        } else {
-          throw new Error(result.message || 'Registration failed');
-        }
-      } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.classList.add('show');
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
-      }
-    });
-
-    function storeSession(data, rememberMe = false) {
-      sessionStorage.setItem('currentUser', JSON.stringify(data.user));
-      sessionStorage.setItem('authToken', data.token);
-
-      if (rememberMe) {
-        localStorage.setItem('rememberedUser', JSON.stringify({
-          name: data.user.caretaker_name,
-          patientName: data.user.patient_name
-        }));
-      } else {
-        localStorage.removeItem('rememberedUser');
-      }
-    }
-
-    async function authenticateUser(name, password) {
-      const response = await fetch('/api/patient/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caretaker_name: name, password })
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      storeSession(data, document.getElementById('rememberMe').checked);
-      return data.user;
-    }
-
-    async function registerUser(formData) {
-      const response = await fetch('/api/patient/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
-      storeSession(data);
-      return data;
-    }
-
-    // Check if user was remembered
-    window.addEventListener('load', () => {
-      const remembered = localStorage.getItem('rememberedUser');
-      if (remembered) {
-        const user = JSON.parse(remembered);
-        document.getElementById('loginName').value = user.name;
-        document.getElementById('rememberMe').checked = true;
-      }
-    });
-  </script>
+    </script>
 </body>
 </html>
