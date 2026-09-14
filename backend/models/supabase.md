@@ -41,6 +41,18 @@ CREATE TABLE game_scores (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create caregiver alert log
+CREATE TABLE cognitive_alerts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  patient_id UUID NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+  alert_title VARCHAR(255) NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'Acknowledged',
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX cognitive_alerts_patient_id_idx ON cognitive_alerts(patient_id);
+CREATE INDEX cognitive_alerts_created_at_idx ON cognitive_alerts(created_at DESC);
+
 -- Create indexes for better performance
 CREATE INDEX game_scores_patient_id_idx ON game_scores(patient_id);
 CREATE INDEX game_scores_created_at_idx ON game_scores(created_at DESC);
@@ -54,6 +66,9 @@ Create a `.env` file in the project root:
 SUPABASE_URL=https://your-project-id.supabase.co
 SUPABASE_ANON_KEY=your-anon-key-here
 GEMINI_API_KEY=your-gemini-api-key-here
+TWILIO_ACCOUNT_SID=your-twilio-account-sid
+TWILIO_AUTH_TOKEN=your-twilio-auth-token
+TWILIO_FROM_NUMBER=your-twilio-phone-number
 PORT=5000
 ```
 

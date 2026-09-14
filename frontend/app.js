@@ -18,6 +18,7 @@ async function loadPatient() {
   if (!response.ok) throw new Error('Patient profile is unavailable.');
 
   patient = await response.json();
+  window.currentPatient = patient;
   setText('patientName', patient.name || 'Elderly Resident');
   setText('patientAge', `♡ ${patient.age || 74} years`);
   setText('patientRegion', `📍 ${patient.region || 'North East India'}`);

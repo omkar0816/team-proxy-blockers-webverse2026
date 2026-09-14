@@ -7,6 +7,7 @@ require("dotenv").config({
 const express = require("express");
 const connectDB = require("./config/db");
 const { refreshSession } = require("./utils/supabase/middleware");
+const sendSms = require("./utils/sms");
 const patientRoutes = require("./routes/patientRoutes");
 const scoreRoutes = require("./routes/scoreRoutes");
 
@@ -38,20 +39,17 @@ app.use("/api/patient", patientRoutes);
 app.use("/api/scores", scoreRoutes);
 app.post("/api/notify-caregiver", async (req, res) => {
     try {
-        const { alertTitle, patientName } = req.body;
-        
-        // Grab the Supabase connection that your app initialized
+        const { alertTitle, patientId } = req.body;
         const supabase = req.app.locals.supabase;
-        
+
         if (!supabase) {
             return res.status(500).json({ error: "Database connection not ready." });
         }
 
-        // 1. Get the patient ID
         const { data: patientData, error: patientError } = await supabase
             .from("patients")
-            .select("id, caregiver_phone")
-            .limit(1)
+            .select("id, name, caregiver_name, caregiver_phone")
+            .eq("id", patientId)
             .single();
 
         if (patientError) {
@@ -59,23 +57,41 @@ app.post("/api/notify-caregiver", async (req, res) => {
             return res.status(404).json({ error: "Patient not found" });
         }
 
-        // 2. Insert the alert into your new cognitive_alerts table
-        const { data: insertedData, error: insertError } = await supabase
+        const { data: insertedAlert, error: insertError } = await supabase
             .from("cognitive_alerts")
             .insert([{
                 patient_id: patientData.id,
                 alert_title: alertTitle,
-                status: "Acknowledged"
+                status: "Acknowledged",
+                created_at: new Date().toISOString()
             }])
-            .select(); // .select() forces Supabase to return the inserted row
+            .select("id, created_at")
+            .single();
 
         if (insertError) {
             console.error("Failed to insert into cognitive_alerts:", insertError.message);
             return res.status(500).json({ error: "Failed to log alert" });
         }
 
-        console.log("Successfully logged alert to database:", insertedData);
-        res.status(200).json({ success: true, message: "Alert logged successfully" });
+        try {
+            await sendSms({
+                to: patientData.caregiver_phone,
+                body: `${patientData.name}: ${alertTitle}. Please check in with ${patientData.name}.`
+            });
+        } catch (smsError) {
+            console.error("Alert logged but caregiver SMS failed:", smsError.message);
+            return res.status(502).json({
+                error: "Alert logged, but the caregiver SMS could not be sent.",
+                alertId: insertedAlert.id
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            alertId: insertedAlert.id,
+            createdAt: insertedAlert.created_at,
+            message: `Alert logged and ${patientData.caregiver_name || "the caregiver"} notified.`
+        });
 
     } catch (err) {
         console.error("Server Error:", err.message);

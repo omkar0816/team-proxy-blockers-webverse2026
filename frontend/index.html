@@ -805,7 +805,12 @@ document.querySelectorAll('.alert-row').forEach(alert => {
   alert.addEventListener('click', async function() {
     // 1. Grab the specific text from the alert you clicked
     const title = this.querySelector('.alert-title').textContent;
-    const patientName = document.getElementById('patientName').textContent;
+    const patientId = window.currentPatient?._id;
+
+    if (!patientId) {
+      console.error('Cannot notify caregiver before the patient profile loads.');
+      return;
+    }
     
     // Optional: Have the app speak
     if(typeof speak === 'function') {
@@ -816,17 +821,22 @@ document.querySelectorAll('.alert-row').forEach(alert => {
     try {
       console.log("Sending alert to backend:", title);
       
-      // Using localhost:5000 directly to fix the port mismatch
-      fetch('http://localhost:5000/api/notify-caregiver', {
+      const response = await fetch(`${window.location.port === '5000' ? '' : `${window.location.protocol}//${window.location.hostname}:5000`}/api/notify-caregiver`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alertTitle: title, patientName: patientName })
-      })
-      .then(res => res.json())
-      .then(data => console.log("Backend response:", data));
+        body: JSON.stringify({ alertTitle: title, patientId })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Caregiver notification failed.');
+      console.log("Backend response:", data);
       
     } catch(err) {
       console.error('Failed to log alert', err);
+      if(typeof speak === 'function') {
+        speak('The caregiver could not be notified. Please try again.');
+      }
+      return;
     }
     
     // 3. Visually fade out and remove the alert
