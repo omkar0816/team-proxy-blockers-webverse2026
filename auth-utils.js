@@ -105,12 +105,34 @@ class AuthManager {
         })
       });
 
+      let errorData = null;
+      const contentType = response.headers.get('content-type');
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+        try {
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          } else {
+            const text = await response.text();
+            errorData = { message: text || `HTTP ${response.status}` };
+          }
+        } catch (e) {
+          errorData = { message: `Login failed with status ${response.status}` };
+        }
+        throw new Error(errorData?.message || 'Login failed');
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          throw new Error('Invalid response format: expected JSON');
+        }
+      } catch (e) {
+        console.error('JSON parse error:', e);
+        throw new Error('Server returned invalid response');
+      }
 
       // Store user data and token
       this.currentUser = data.user;
@@ -128,7 +150,6 @@ class AuthManager {
       throw error;
     }
   }
-
   /**
    * Logout user
    */

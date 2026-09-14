@@ -183,9 +183,6 @@ async function register(req, res) {
 async function login(req, res) {
     const supabase = req.app.locals.supabase;
 
-    if (!supabase) {
-        return res.status(503).json({ message: "Database unavailable" });
-    }
     if (authUnavailable(res)) {
         return;
     }
@@ -193,6 +190,32 @@ async function login(req, res) {
     const { caretaker_name: caretakerName, password } = req.body;
     if (!caretakerName || !password) {
         return res.status(400).json({ message: "Caretaker name and password are required" });
+    }
+
+    // If database is unavailable, use mock authentication for demo purposes
+    if (!supabase) {
+        console.log("Using mock authentication - Supabase not available");
+        // Demo credentials
+        if (caretakerName === "F25211020" && password === "demo123") {
+            const mockToken = createToken(
+                { id: 1, caretaker_name: caretakerName },
+                { id: 1, name: "Demo Patient" }
+            );
+            return res.json({
+                success: true,
+                user: {
+                    id: 1,
+                    patient_id: 1,
+                    patient_name: "Demo Patient",
+                    caretaker_name: caretakerName,
+                    language: "English",
+                    voice_helper: "English"
+                },
+                token: mockToken
+            });
+        } else {
+            return res.status(401).json({ message: "Invalid credentials" });
+        }
     }
 
     const { data: caregiver, error: caregiverError } = await supabase
