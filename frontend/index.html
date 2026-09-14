@@ -244,10 +244,10 @@
   <section class="hero">
     <div class="hero-top">
       <div class="hero-greet">
-        <p class="eyebrow sans" id="greetTime">Good evening, caregiver</p>
+        <p class="eyebrow sans" id="greetTime">Good Evening, Caregiver</p>
         <h2 id="patientName">Mema Singh</h2>
         <div class="meta-row">
-          <span id="patientAge">♡ 72 years</span>
+          <span id="patientAge"> 72 years</span>
           <span id="patientRegion">📍 Imphal, Manipur</span>
           <span id="patientLanguage">🌐 English</span>
         </div>
@@ -756,6 +756,35 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
 
 document.querySelectorAll('.activity-row').forEach(row=>{
   row.addEventListener('click', ()=> launchGame(row.dataset.game));
+});
+/* =========================================================
+   CAREGIVER ALERTS INTERACTION (Demo)
+========================================================= */
+document.querySelectorAll('.alert-row').forEach(alert => {
+  // Make the mouse a pointer so it looks clickable
+  alert.style.cursor = 'pointer'; 
+  
+  alert.addEventListener('click', function() {
+    // Optional: Have the app speak when an alert is clicked
+    if(typeof speak === 'function') {
+      speak('Alert acknowledged.');
+    }
+    
+    // Visually fade out and remove the alert to simulate completing it
+    this.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    this.style.opacity = '0';
+    this.style.transform = 'translateX(20px)';
+    
+    setTimeout(() => {
+      this.remove();
+      
+      // If all alerts are cleared, show a success message
+      const alertsList = document.getElementById('alertsList');
+      if (alertsList.children.length === 0) {
+        alertsList.innerHTML = '<p class="sub sans" style="padding:10px;">All caught up! No new alerts.</p>';
+      }
+    }, 400);
+  });
 });
 </script>
 <script src="app.js" defer></script>
