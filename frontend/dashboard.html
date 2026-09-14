@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Care Companion Dashboard</title>
+  <style>
+    :root { color-scheme: light; font-family: Georgia, serif; color: #1d2521; background: #f4f2ec; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    main { width: min(620px, 100%); background: #fff; border-radius: 18px; padding: 32px; box-shadow: 0 12px 36px rgba(20, 30, 26, .12); }
+    h1 { margin: 0 0 8px; color: #12403c; }
+    p { color: #5b6560; line-height: 1.5; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+    a, button { border: 0; border-radius: 10px; padding: 12px 18px; font: 600 14px Georgia, serif; cursor: pointer; text-decoration: none; }
+    a { background: #155249; color: #fff; }
+    button { background: #e4f0ec; color: #155249; }
+    .error { color: #b3453a; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1 id="greeting">Care Companion</h1>
+    <p id="patient">Loading your patient profile...</p>
+    <div class="actions">
+      <a href="/patient.html">Open patient care</a>
+      <button id="logout" type="button">Log out</button>
+    </div>
+  </main>
+  <script>
+    const user = JSON.parse(sessionStorage.getItem('currentUser') || 'null');
+    const token = sessionStorage.getItem('authToken');
+
+    if (!user || !token) {
+      window.location.replace('/');
+    } else {
+      document.getElementById('greeting').textContent = `Welcome, ${user.caretaker_name}`;
+      document.getElementById('patient').textContent = `Care plan for ${user.patient_name}. Choose an activity to begin.`;
+    }
+
+    document.getElementById('logout').addEventListener('click', async () => {
+      await fetch('/api/patient/logout', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      }).catch(() => {});
+      sessionStorage.clear();
+      localStorage.removeItem('rememberedUser');
+      window.location.replace('/');
+    });
+  </script>
+</body>
+</html>

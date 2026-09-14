@@ -21,8 +21,8 @@ app.use((req, res, next) => {
 
     if (origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         res.setHeader("Access-Control-Allow-Origin", origin);
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-        res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     }
 
     if (req.method === "OPTIONS") {
@@ -31,9 +31,27 @@ app.use((req, res, next) => {
 
     next();
 });
-app.use(express.static(frontendPath));
+app.use(express.static(frontendPath, { index: false }));
 app.get("/", (req, res) => {
-    res.sendFile(path.join(frontendPath, "index.html"));
+    res.sendFile(path.resolve(__dirname, "../index.html"));
+});
+app.get("/index.html", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../index.html"));
+});
+app.get("/auth-login.html", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../index.html"));
+});
+app.get("/dashboard", (req, res) => {
+    res.sendFile(path.join(frontendPath, "dashboard.html"));
+});
+app.get("/patient", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../patient.html"));
+});
+app.get("/patient.html", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../patient.html"));
+});
+app.get("/game", (req, res) => {
+    res.sendFile(path.resolve(__dirname, "../patient.html"));
 });
 app.use("/api/patient", patientRoutes);
 app.use("/api/scores", scoreRoutes);
