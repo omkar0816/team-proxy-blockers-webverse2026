@@ -124,15 +124,15 @@ async function startServer() {
     const port = process.env.PORT || 5000;
     app.locals.supabase = null;
 
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
-
     try {
         app.locals.supabase = await connectDB();
     } catch (error) {
         console.error(`Supabase is unavailable. The local server will continue without database features: ${error.message}`);
     }
+
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
 }
 
 startServer().catch((error) => {
