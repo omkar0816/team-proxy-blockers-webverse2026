@@ -390,17 +390,45 @@
       <h3>Caregiver Alerts</h3>
       <p class="sub">Updates and reminders</p>
       <div id="alertsList">
+      <div id="alertsList">
+        <!-- 1. Medicines -->
+        <div class="alert-row">
+          <div class="alert-ic bell">💊</div>
+          <div>
+            <p class="alert-title">Medicine Reminder</p>
+            <p class="alert-body">Time for the scheduled afternoon medication.</p>
+            <p class="alert-time">Just now</p>
+          </div>
+        </div>
+        
+        <!-- 2. Hydration -->
+        <div class="alert-row">
+          <div class="alert-ic bell">💧</div>
+          <div>
+            <p class="alert-title">Hydration Check</p>
+            <p class="alert-body">Ensure a glass of water is consumed in the next 15 minutes.</p>
+            <p class="alert-time">15m ago</p>
+          </div>
+        </div>
+
+        <!-- 3. Daily Activities -->
         <div class="alert-row">
           <div class="alert-ic ok">✓</div>
-          <div><p class="alert-title">Daily check-in completed</p><p class="alert-body">Mema completed her morning memory session.</p><p class="alert-time">4h ago</p></div>
+          <div>
+            <p class="alert-title">Daily Activity Logged</p>
+            <p class="alert-body">Completed the scheduled evening garden walk.</p>
+            <p class="alert-time">2h ago</p>
+          </div>
         </div>
+
+        <!-- 4. Medical Appointments -->
         <div class="alert-row">
-          <div class="alert-ic bell">🔔</div>
-          <div><p class="alert-title">Gentle reminder</p><p class="alert-body">A hydration reminder is due in about 30 minutes.</p><p class="alert-time">7h ago</p></div>
-        </div>
-        <div class="alert-row">
-          <div class="alert-ic ok">✓</div>
-          <div><p class="alert-title">New progress insight</p><p class="alert-body">Focus scores are trending up this week.</p><p class="alert-time">1d ago</p></div>
+          <div class="alert-ic bell">🗓️</div>
+          <div>
+            <p class="alert-title">Upcoming Appointment</p>
+            <p class="alert-body">Neurologist check-up scheduled for tomorrow at 10:00 AM.</p>
+            <p class="alert-time">5h ago</p>
+          </div>
         </div>
       </div>
     </div>
